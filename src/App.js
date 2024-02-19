@@ -1,23 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import obtenerPersonajePorNombre from './my-script/ManagerScript.js';
 
 function App() {
+  const [personajes] = useState([]);
+  const [busqueda, setBusqueda] = useState('');
+  const [resultadoBusqueda, setResultadoBusqueda] = useState([]);
+
+  useEffect(() => {
+    const resultados = personajes.filter(personaje =>
+      personaje.name.toLowerCase().includes(busqueda.toLowerCase())
+    );
+    setResultadoBusqueda(resultados);
+  }, [busqueda, personajes]);
+
+  const handleChangeBusqueda = event => {
+    setBusqueda(event.target.value);
+  };
+
+  const handleBuscar = () => {
+    obtenerPersonajePorNombre(busqueda)
+      .then(data => {
+        setResultadoBusqueda([data]);
+      })
+      .catch(error => {
+        console.error('Error al buscar el personaje:', error);
+        setResultadoBusqueda([]);
+      });
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Personajes de Marvel</h1>
+      <div>
+        <input
+          type="text"
+          placeholder="Buscar personaje"
+          value={busqueda}
+          onChange={handleChangeBusqueda}
+        />
+        <button onClick={handleBuscar}>Buscar</button>
+      </div>
+      <ul>
+        {resultadoBusqueda.map(personaje => (
+          <li key={personaje.id}>{personaje.name}</li>
+        ))}
+      </ul>
     </div>
   );
 }
